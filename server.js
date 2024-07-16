@@ -1,5 +1,4 @@
 const express = require("express");
-// const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -18,7 +17,6 @@ const db = mysql.createConnection({
   database: process.env.DB_DATABASE,
 });
 
-// app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 
@@ -38,14 +36,14 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["server.js"], // List of files to be scanned for annotations
+  apis: ["./server.js"], // List of files to be scanned for annotations
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /**
- * @openapi
+ * @swagger
  * /:
  *  get:
  *    description: Welcome endpoint
@@ -53,17 +51,16 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  *      '200':
  *        description: A successful response
  */
-
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
 app.listen(3000, () => {
-  console.log("Server running");
+  console.log("Server running on port 3000");
 });
 
 /**
- * @openapi
+ * @swagger
  * /users:
  *  get:
  *    description: Retrieve all users
@@ -73,8 +70,6 @@ app.listen(3000, () => {
  *      '500':
  *        description: Internal server error
  */
-
-// Get all users
 app.get("/users", (req, res) => {
   const query = "SELECT * FROM user";
   db.query(query, (err, results) => {
@@ -90,7 +85,7 @@ app.get("/users", (req, res) => {
 });
 
 /**
- * @openapi
+ * @swagger
  * /users/{id}:
  *  get:
  *    description: Retrieve a user by ID
@@ -106,8 +101,6 @@ app.get("/users", (req, res) => {
  *      '404':
  *        description: User not found
  */
-
-// Get user by id
 app.get("/users/:id", (req, res) => {
   const id = Number(req.params.id);
   const query = "SELECT * FROM user WHERE id = ?";
@@ -130,18 +123,34 @@ app.get("/users/:id", (req, res) => {
 });
 
 /**
- * @openapi
+ * @swagger
  * /users:
  *  post:
- *    description: Create a new user
+ *    summary: Create a new user
+ *    description: Add a new user to the database
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: The name of the user
+ *              email:
+ *                type: string
+ *                format: email
+ *                description: The email address of the user
+ *            required:
+ *              - name
+ *              - email
  *    responses:
  *      '201':
  *        description: User created successfully
  *      '500':
- *        description: Internal server error
+ *        description: Server error
  */
-
-// Create a new user
 app.post("/users", (req, res) => {
   const { name, email } = req.body;
   const query = "INSERT INTO user (name, email) VALUES (?, ?)";
@@ -160,7 +169,7 @@ app.post("/users", (req, res) => {
 });
 
 /**
- * @openapi
+ * @swagger
  * /users/{id}:
  *  patch:
  *    description: Partially update user by ID
@@ -170,6 +179,12 @@ app.post("/users", (req, res) => {
  *        required: true
  *        schema:
  *          type: integer
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
  *    responses:
  *      '200':
  *        description: User updated successfully
@@ -180,8 +195,6 @@ app.post("/users", (req, res) => {
  *      '500':
  *        description: Internal server error
  */
-
-// Partially update user by id (PATCH)
 app.patch("/users/:id", (req, res) => {
   const id = Number(req.params.id);
   const updateFields = req.body;
@@ -221,7 +234,7 @@ app.patch("/users/:id", (req, res) => {
 });
 
 /**
- * @openapi
+ * @swagger
  * /users/{id}:
  *  delete:
  *    description: Delete user by ID
@@ -239,8 +252,6 @@ app.patch("/users/:id", (req, res) => {
  *      '500':
  *        description: Internal server error
  */
-
-// Delete user by id
 app.delete("/users/:id", (req, res) => {
   const id = Number(req.params.id);
   const query = "DELETE FROM user WHERE id = ?";
@@ -261,7 +272,7 @@ app.delete("/users/:id", (req, res) => {
 });
 
 /**
- * @openapi
+ * @swagger
  * /users/search/{name}:
  *  get:
  *    description: Search users by name
@@ -280,8 +291,6 @@ app.delete("/users/:id", (req, res) => {
  *      '500':
  *        description: Internal server error
  */
-
-// Search users by name
 app.get("/users/search/:name", (req, res) => {
   const { name } = req.params;
   if (!name) {
