@@ -36,7 +36,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./server.js"], // List of files to be scanned for annotations
+  apis: ["./server.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
